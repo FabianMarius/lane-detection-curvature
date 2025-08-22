@@ -127,4 +127,5 @@ The project is implemented in Python **3.10+** with the following dependencies:
 _python LaneDetection.py_
 
 📝 License
+
 This project is released under the MIT License.
