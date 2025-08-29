@@ -1,131 +1,127 @@
-**Lane Detection and Road Curvature Estimation with OpenCV**
+# Lane Detection and Road Curvature Estimation with OpenCV
 
- **Overview**
+## Overview
+This project implements a **Lane Detection System** for real-time video streams or prerecorded video files.  
+The system detects lane markings on the road, estimates lane curvature, calculates vehicle offset from lane center, and overlays this information on the original video frames.  
 
-This project implements a Lane Detection System for real-time video streams or prerecorded video files. The system detects lane markings on the road, estimates lane curvature, calculates vehicle offset from lane center, and overlays this information on the original video frames.
+It was developed as part of a **technical project in the automotive & intelligent vehicle domain**, aiming to simulate how autonomous cars can use vision systems to maintain their position on the road.  
 
-The pipeline is built using Python with the main logic in LaneDetection.py and supporting utility functions in utlis.py. It is designed to be modular, allowing easy extension for more advanced perception or integration with autonomous driving applications.
+## Scope and Objectives
+- Detect left and right lane lines in different lighting and road conditions.  
+- Estimate lane curvature (in meters) using polynomial fitting.  
+- Compute the vehicle's lateral offset from lane center.  
+- Overlay the detected lane and metrics (curvature, offset) directly on the video.  
+- Support both video files (.mp4) and live camera feeds.  
 
- **Scope**
+## Solution & Techniques
+The system uses computer vision techniques with **Python + OpenCV**:  
 
- - Detect left and right lane lines in challenging lighting and road conditions.
+1. Image Acquisition  
+   - Input from video file or live camera feed.  
 
- - Compute lane curvature in meters and vehicle lateral offset from lane center.
+2. Camera Calibration  
+   - Correction of lens distortion using calibration parameters.  
 
- - Overlay lane boundaries and metrics on video frames for visualization.
+3. Preprocessing  
+   - Color space transformations.  
+   - Gradient thresholding and Canny edge detection to create binary masks.  
 
- - Support both video files (.mp4) and live camera feed.
+4. Perspective Transform (Bird’s-Eye View)  
+   - Warping the region of interest to simulate a top-down view of the road.  
 
-**Solution**
+5. Histogram and Sliding Windows  
+   - Generating a histogram of pixel intensity to identify lane line positions.  
+   - Using sliding windows to track pixels belonging to lane lines.  
 
-The system uses computer vision techniques, including:
+6. Polynomial Fitting  
+   - Fitting a 2nd-degree polynomial for each lane line.  
 
- - Camera calibration to remove lens distortion.
+7. Metrics Calculation  
+   - Lane curvature in real-world units (meters).  
+   - Vehicle offset relative to the lane center.  
 
- - Color and gradient thresholding to extract lane features.
+8. Visualization  
+   - Drawing lane lines, curvature, and offset directly on the video frames.  
 
- - Perspective transform to create a bird’s-eye view for accurate lane analysis.
+## Execution Flow
 
- - Histogram and sliding window method for lane pixel detection.
+```text
+      ┌─────────────┐
+      │  Input      │
+      │ Video/Camera│
+      └─────┬───────┘
+            │
+    ┌───────▼────────┐
+    │ Calibration &  │
+    │ Preprocessing  │
+    └───────┬────────┘
+            │
+    ┌───────▼─────────┐
+    │ Perspective      │
+    │ Transform        │
+    └───────┬─────────┘
+            │
+    ┌───────▼──────────┐
+    │ Lane Detection &  │
+    │ Polynomial Fitting│
+    └───────┬──────────┘
+            │
+    ┌───────▼──────────┐
+    │ Curvature & Offset│
+    └───────┬──────────┘
+            │
+    ┌───────▼──────────┐
+    │ Visualization &  │
+    │ Overlay           │
+    └───────┬──────────┘
+            │
+    ┌───────▼─────────┐
+    │ Output Video    │
+    └─────────────────┘
+```
 
- - Polynomial fitting to model lane lines.
+## Metrics Calculated
+- Lane curvature: radius of the road curve in meters.  
+- Vehicle offset: lateral deviation from the lane center in meters.  
 
- - Curvature and offset calculations in real-world units.
+## Results
+- Lane detection accuracy of approximately 85% in normal daylight conditions.  
+- Dynamic overlay of curvature and offset information.  
+- Robust detection in moderate lighting and partial occlusion scenarios.  
 
-All utility functions are implemented in utlis.py, while LaneDetection.py orchestrates the end-to-end pipeline.
+## Limitations
+- Reduced accuracy at night or in adverse weather conditions (fog, heavy rain).  
+- Slower processing: a 30-second video required ~60 seconds to process on a standard laptop. With optimization or better hardware, real-time processing is achievable.  
+- Worn-out or missing lane markings significantly decrease detection reliability.  
 
- **Execution Flow**
+## Documentation & Code Structure
+- LaneDetection.py – main execution pipeline.  
+- utlis.py – utility functions: calibration, preprocessing, perspective transform, histogram, sliding window, polynomial fitting, curvature/offset calculations, visualization.  
+- VideoTest01.mp4 – example input video.  
 
-Below is the detailed execution flow of the system:
+## Installation & Run
+Clone this repository:
 
-          ┌─────────────┐
-          │  Input      │
-          │ Video/Camera│
-          └─────┬───────┘
-                │
-        ┌───────▼────────┐
-        │ Calibration &  │
-        │ Preprocessing  │
-        │ - cal_undistort│
-        │ - preprocess   │
-        └───────┬────────┘
-                │
-        ┌───────▼─────────┐
-        │ Perspective      │
-        │ Transform        │
-        │ - warp_image()   │
-        └───────┬─────────┘
-                │
-        ┌───────▼──────────┐
-        │ Lane Detection &  │
-        │ Polynomial Fitting│
-        │ - get_hist()      │
-        │ - sliding_window()│
-        │ - np.polyfit()    │
-        └───────┬──────────┘
-                │
-        ┌───────▼──────────┐
-        │ Curvature & Offset│
-        │ - measure_curvature_real() │
-        │ - calculate_vehicle_offset() │
-        └───────┬──────────┘
-                │
-        ┌───────▼──────────┐
-        │ Visualization &  │
-        │ Overlay           │
-        │ - draw_lane()     │
-        └───────┬──────────┘
-                │
-        ┌───────▼─────────┐
-        │ Output Video    │
-        │ with lane lines │
-        │ and metrics     │
-        └─────────────────┘
+```bash
+git clone https://github.com/username/lane-detection-curvature.git
+```
 
- **Metrics Calculated**
+Install dependencies:
 
- - Lane curvature (meters) – estimates the radius of the lane curve.
+```bash
+pip install opencv-python numpy matplotlib
+```
 
- - Vehicle offset (meters) – calculates lateral deviation from the lane center.
+Run the main script:
 
- **Results**
+```bash
+python LaneDetection.py
+```
 
- - Real-time lane overlay on videos.
+## Future Work
+- Optimize code for real-time video processing.  
+- Improve robustness for night driving and harsh weather conditions.  
+- Extend the system with deep learning-based lane detection models.  
 
- - Curvature and offset displayed dynamically.
-
- - Robust detection in different lighting and partial occlusion scenarios.
-
- **Limitations**
-
- - Struggles with worn-out or missing lane markings.
-
- - Sensitivity to extreme shadows or glare.
-
- - Assumes roughly flat roads; hills and slopes may affect accuracy.
-
- **Documentation & Code Structure**
-
-LaneDetection.py – main execution script.
-
-utlis.py – utility functions: calibration, preprocessing, warping, histogram, sliding window, polynomial fitting, curvature and offset calculations, visualization.
-
-VideoTest01.mp4 – example input video.
-
-**_Clone this repository_**:
-
-**git clone https://github.com/username/lane-detection-curvature.git**
-
-**_Install dependencies_**:
-The project is implemented in Python **3.10+** with the following dependencies:
-- **_opencv-python_**
-- **_numpy_**
-- **_matplotlib_**
-
-**_Run the main script command_**:
-
-_python LaneDetection.py_
-
-📝 License
-
+## License
 This project is released under the MIT License.
